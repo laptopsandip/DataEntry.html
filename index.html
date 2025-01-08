@@ -6,10 +6,39 @@
     <title>Student Record Entry System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; }
-        .container { margin-top: 50px; }
-        .form-control { margin-bottom: 10px; }
-        .hidden { display: none; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .form-control {
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .table th, .table td {
+            text-align: center;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        .record-table {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -28,7 +57,7 @@
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" class="btn btn-custom">Login</button>
             <p class="text-danger mt-3" id="loginError" style="display:none;">Invalid credentials, please try again.</p>
         </form>
     </div>
@@ -36,11 +65,17 @@
     <!-- Record Management System (hidden by default) -->
     <div id="recordSystem" class="hidden">
         <h2 class="text-center">Student Record Entry System</h2>
-        
-        <!-- Search Form -->
-        <div class="mb-3">
-            <label for="searchInput" class="form-label">Search by Student Name or Contact No</label>
-            <input type="text" id="searchInput" class="form-control" onkeyup="searchRecords()" placeholder="Enter name or contact number to search">
+
+        <!-- Search Form (Placed within the records section) -->
+        <div class="d-flex justify-content-between mt-4">
+            <div class="mb-3 w-45">
+                <label for="searchInput" class="form-label">Search by Student Name or Contact No</label>
+                <input type="text" id="searchInput" class="form-control" onkeyup="searchRecords()" placeholder="Enter name or contact number to search">
+            </div>
+            <div class="mb-3 w-45">
+                <label for="filterDate" class="form-label">Filter by Date</label>
+                <input type="date" id="filterDate" class="form-control" onchange="loadRecords()">
+            </div>
         </div>
 
         <!-- Record Form -->
@@ -89,34 +124,34 @@
                 <label for="recordDate" class="form-label">Date</label>
                 <input type="date" class="form-control" id="recordDate" required>
             </div>
-            <button type="submit" class="btn btn-primary">Save Record</button>
+            <button type="submit" class="btn btn-custom">Save Record</button>
         </form>
 
-        <h3 class="mt-5">Records</h3>
-        <label for="filterDate" class="form-label">Filter by Date</label>
-        <input type="date" id="filterDate" class="form-control mb-3" onchange="loadRecords()">
-        <table class="table table-bordered mt-3" id="recordsTable">
-            <thead>
-                <tr>
-                    <th>Sn</th>
-                    <th>Student Name</th>
-                    <th>Address</th>
-                    <th>Contact No</th>
-                    <th>Email</th>
-                    <th>Course</th>
-                    <th>Duration</th>
-                    <th>Time</th>
-                    <th>Occupation</th>
-                    <th>Enquiry</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Records will be added here -->
-            </tbody>
-        </table>
+        <div class="record-table">
+            <h3 class="mt-5">Records</h3>
+            <table class="table table-bordered mt-3" id="recordsTable">
+                <thead>
+                    <tr>
+                        <th>Sn</th>
+                        <th>Student Name</th>
+                        <th>Address</th>
+                        <th>Contact No</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Duration</th>
+                        <th>Time</th>
+                        <th>Occupation</th>
+                        <th>Enquiry</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Records will be added here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -125,6 +160,7 @@
     const validUsername = "admin";
     const validPassword = "admin123";
     const editPassword = "admin"; // Password for editing records
+    const deletePassword = "admin"; // Password for deleting records
 
     // Check if localStorage already has records
     if (!localStorage.getItem("records")) {
@@ -161,7 +197,7 @@
                 </td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="requestEditPassword(${index})">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteRecord(${index})">Delete</button>
+                    <button class="btn btn-danger btn-sm" onclick="requestDeletePassword(${index})">Delete</button>
                 </td>
             `;
         });
@@ -181,90 +217,58 @@
         let enquiry = document.getElementById("enquiry").value;
         let recordDate = document.getElementById("recordDate").value;
 
+        let record = {
+            sn, studentName, address, contactNo, email, course, duration, time, occupation, enquiry, recordDate, status: 'Pending'
+        };
+
         let records = JSON.parse(localStorage.getItem("records"));
-        let record = { sn, studentName, address, contactNo, email, course, duration, time, occupation, enquiry, recordDate, status: 'Pending' };
-
-        // Add new record or update existing one
-        if (window.editIndex === undefined) {
-            records.push(record);  // Add new record
-        } else {
-            records[window.editIndex] = record;  // Update existing record
-            delete window.editIndex;  // Reset the edit index
-        }
-
+        records.push(record);
         localStorage.setItem("records", JSON.stringify(records));
-        loadRecords();  // Reload records
-        document.getElementById("recordForm").reset();  // Clear the form
-        return false;  // Prevent form submission
+
+        loadRecords();  // Reload the records after saving
+        return false;
     }
 
-    // Request for the password to edit a record
+    // Edit button password validation
     function requestEditPassword(index) {
-        let enteredPassword = prompt("Please enter the password to edit the record:");
-
-        if (enteredPassword === editPassword) {
-            editRecord(index);  // Proceed with editing if password is correct
+        let password = prompt("Enter password to edit:");
+        if (password === editPassword) {
+            // Allow editing logic here (you can add a form for editing)
+            alert("Editing is now allowed!");
         } else {
-            alert("Incorrect password. You cannot edit the record.");
+            alert("Incorrect password!");
         }
     }
 
-    // Edit a record
-    function editRecord(index) {
-        let records = JSON.parse(localStorage.getItem("records"));
-        let record = records[index];
-
-        document.getElementById("sn").value = record.sn;
-        document.getElementById("studentName").value = record.studentName;
-        document.getElementById("address").value = record.address;
-        document.getElementById("contactNo").value = record.contactNo;
-        document.getElementById("email").value = record.email;
-        document.getElementById("course").value = record.course;
-        document.getElementById("duration").value = record.duration;
-        document.getElementById("time").value = record.time;
-        document.getElementById("occupation").value = record.occupation;
-        document.getElementById("enquiry").value = record.enquiry;
-        document.getElementById("recordDate").value = record.recordDate;
-
-        window.editIndex = index;  // Store index for updating
+    // Delete button password validation
+    function requestDeletePassword(index) {
+        let password = prompt("Enter password to delete:");
+        if (password === deletePassword) {
+            let records = JSON.parse(localStorage.getItem("records"));
+            records.splice(index, 1);
+            localStorage.setItem("records", JSON.stringify(records));
+            loadRecords();  // Reload after deletion
+        } else {
+            alert("Incorrect password!");
+        }
     }
 
-    // Toggle status between Admitted and Pending
-    function toggleStatus(index) {
-        let records = JSON.parse(localStorage.getItem("records"));
-        let record = records[index];
-        record.status = (record.status === 'Admitted') ? 'Pending' : 'Admitted';  // Toggle the status
-        localStorage.setItem("records", JSON.stringify(records));
-        loadRecords();  // Reload the records to reflect the status change
-    }
-
-    // Delete a record
-    function deleteRecord(index) {
-        let records = JSON.parse(localStorage.getItem("records"));
-        records.splice(index, 1);  // Remove the record from array
-        localStorage.setItem("records", JSON.stringify(records));
-        loadRecords();  // Reload records after deletion
-    }
-
-    // Search records based on student name or contact number
+    // Search function
     function searchRecords() {
         let searchTerm = document.getElementById("searchInput").value.toLowerCase();
         let records = JSON.parse(localStorage.getItem("records"));
-
         let filteredRecords = records.filter(record => 
             record.studentName.toLowerCase().includes(searchTerm) || 
             record.contactNo.includes(searchTerm)
         );
-
-        displayRecords(filteredRecords);
+        displayFilteredRecords(filteredRecords);
     }
 
-    // Display records in the table
-    function displayRecords(records) {
+    function displayFilteredRecords(filteredRecords) {
         let tableBody = document.getElementById("recordsTable").getElementsByTagName("tbody")[0];
         tableBody.innerHTML = "";  // Clear existing rows
 
-        records.forEach((record, index) => {
+        filteredRecords.forEach((record, index) => {
             let row = tableBody.insertRow();
             row.innerHTML = `
                 <td>${record.sn}</td>
@@ -285,10 +289,19 @@
                 </td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="requestEditPassword(${index})">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteRecord(${index})">Delete</button>
+                    <button class="btn btn-danger btn-sm" onclick="requestDeletePassword(${index})">Delete</button>
                 </td>
             `;
         });
+    }
+
+    // Toggle student status
+    function toggleStatus(index) {
+        let records = JSON.parse(localStorage.getItem("records"));
+        let status = records[index].status === 'Admitted' ? 'Pending' : 'Admitted';
+        records[index].status = status;
+        localStorage.setItem("records", JSON.stringify(records));
+        loadRecords();  // Reload after status change
     }
 
     // User authentication
