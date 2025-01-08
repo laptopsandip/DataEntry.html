@@ -39,6 +39,24 @@
         .record-table {
             margin-top: 20px;
         }
+
+        .record-form {
+            margin-top: 30px;
+        }
+
+        .search-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .form-column {
+            width: 45%;
+        }
+
+        .record-table {
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -66,67 +84,74 @@
     <div id="recordSystem" class="hidden">
         <h2 class="text-center">Student Record Entry System</h2>
 
-        <!-- Search Form (Placed within the records section) -->
-        <div class="d-flex justify-content-between mt-4">
-            <div class="mb-3 w-45">
+        <!-- Search Section (Top) -->
+        <div class="search-section">
+            <div class="form-column">
                 <label for="searchInput" class="form-label">Search by Student Name or Contact No</label>
                 <input type="text" id="searchInput" class="form-control" onkeyup="searchRecords()" placeholder="Enter name or contact number to search">
             </div>
-            <div class="mb-3 w-45">
-                <label for="filterDate" class="form-label">Filter by Date</label>
+            <div class="form-column">
+                <label for="filterDate" class="form-label">Filter by Admit Date</label>
                 <input type="date" id="filterDate" class="form-control" onchange="loadRecords()">
             </div>
         </div>
 
         <!-- Record Form -->
-        <form id="recordForm" onsubmit="return saveRecord()">
-            <div class="mb-3">
-                <label for="sn" class="form-label">Sn</label>
-                <input type="number" class="form-control" id="sn" required>
+        <form id="recordForm" onsubmit="return saveRecord()" class="record-form">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="sn" class="form-label">Sn</label>
+                        <input type="number" class="form-control" id="sn" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="studentName" class="form-label">Student Name</label>
+                        <input type="text" class="form-control" id="studentName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactNo" class="form-label">Contact No</label>
+                        <input type="text" class="form-control" id="contactNo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="course" class="form-label">Course</label>
+                        <input type="text" class="form-control" id="course" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration</label>
+                        <input type="text" class="form-control" id="duration" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time" class="form-label">Time</label>
+                        <input type="text" class="form-control" id="time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="occupation" class="form-label">Occupation</label>
+                        <input type="text" class="form-control" id="occupation" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="enquiry" class="form-label">Enquiry</label>
+                        <textarea class="form-control" id="enquiry" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="recordDate" class="form-label">Admit Date</label>
+                        <input type="date" class="form-control" id="recordDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-custom">Save Record</button>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="studentName" class="form-label">Student Name</label>
-                <input type="text" class="form-control" id="studentName" required>
-            </div>
-            <div class="mb-3">
-                <label for="address" class="form-label">Address</label>
-                <input type="text" class="form-control" id="address" required>
-            </div>
-            <div class="mb-3">
-                <label for="contactNo" class="form-label">Contact No</label>
-                <input type="text" class="form-control" id="contactNo" required>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" required>
-            </div>
-            <div class="mb-3">
-                <label for="course" class="form-label">Course</label>
-                <input type="text" class="form-control" id="course" required>
-            </div>
-            <div class="mb-3">
-                <label for="duration" class="form-label">Duration</label>
-                <input type="text" class="form-control" id="duration" required>
-            </div>
-            <div class="mb-3">
-                <label for="time" class="form-label">Time</label>
-                <input type="text" class="form-control" id="time" required>
-            </div>
-            <div class="mb-3">
-                <label for="occupation" class="form-label">Occupation</label>
-                <input type="text" class="form-control" id="occupation" required>
-            </div>
-            <div class="mb-3">
-                <label for="enquiry" class="form-label">Enquiry</label>
-                <textarea class="form-control" id="enquiry" required></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="recordDate" class="form-label">Date</label>
-                <input type="date" class="form-control" id="recordDate" required>
-            </div>
-            <button type="submit" class="btn btn-custom">Save Record</button>
         </form>
 
+        <!-- Records Table -->
         <div class="record-table">
             <h3 class="mt-5">Records</h3>
             <table class="table table-bordered mt-3" id="recordsTable">
@@ -142,7 +167,7 @@
                         <th>Time</th>
                         <th>Occupation</th>
                         <th>Enquiry</th>
-                        <th>Date</th>
+                        <th>Admit Date</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -225,6 +250,8 @@
         records.push(record);
         localStorage.setItem("records", JSON.stringify(records));
 
+        // Clear input fields after saving
+        document.getElementById("recordForm").reset();
         loadRecords();  // Reload the records after saving
         return false;
     }
@@ -233,7 +260,6 @@
     function requestEditPassword(index) {
         let password = prompt("Enter password to edit:");
         if (password === editPassword) {
-            // Allow editing logic here (you can add a form for editing)
             alert("Editing is now allowed!");
         } else {
             alert("Incorrect password!");
