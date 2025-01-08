@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Record Entry with Authentication</title>
+    <title>Record Entry with Authentication</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -17,6 +17,9 @@
         }
         .hidden {
             display: none;
+        }
+        #loginError {
+            color: red;
         }
     </style>
 </head>
@@ -43,32 +46,72 @@
 
     <!-- Record Management System (hidden by default) -->
     <div id="recordSystem" class="hidden">
-        <h2 class="text-center">Simple Record Entry System</h2>
+        <h2 class="text-center">Record Entry System</h2>
         
         <!-- Record Form -->
         <form id="recordForm" onsubmit="return saveRecord()">
             <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
+                <label for="sn" class="form-label">SN</label>
+                <input type="number" class="form-control" id="sn" required>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Student Name</label>
                 <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea class="form-control" id="address" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="contact" class="form-label">Contact No</label>
+                <input type="text" class="form-control" id="contact" required>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" required>
             </div>
             <div class="mb-3">
-                <label for="phone" class="form-label">Phone</label>
-                <input type="text" class="form-control" id="phone" required>
+                <label for="course" class="form-label">Course</label>
+                <input type="text" class="form-control" id="course" required>
+            </div>
+            <div class="mb-3">
+                <label for="duration" class="form-label">Duration</label>
+                <input type="text" class="form-control" id="duration" required>
+            </div>
+            <div class="mb-3">
+                <label for="time" class="form-label">Time</label>
+                <input type="text" class="form-control" id="time" required>
+            </div>
+            <div class="mb-3">
+                <label for="occupation" class="form-label">Occupation</label>
+                <input type="text" class="form-control" id="occupation" required>
+            </div>
+            <div class="mb-3">
+                <label for="enquiry" class="form-label">Enquiry</label>
+                <textarea class="form-control" id="enquiry" required></textarea>
             </div>
             <button type="submit" class="btn btn-primary">Save Record</button>
         </form>
 
         <h3 class="mt-5">Records</h3>
+        <div>
+            <label for="recordDate">Filter by Date:</label>
+            <input type="date" id="recordDate" class="form-control" onchange="filterByDate()" />
+        </div>
         <table class="table table-bordered mt-3" id="recordsTable">
             <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>SN</th>
+                    <th>Student Name</th>
+                    <th>Address</th>
+                    <th>Contact No</th>
                     <th>Email</th>
-                    <th>Phone</th>
+                    <th>Course</th>
+                    <th>Duration</th>
+                    <th>Time</th>
+                    <th>Occupation</th>
+                    <th>Enquiry</th>
+                    <th>Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -98,9 +141,17 @@
         records.forEach((record, index) => {
             let row = tableBody.insertRow();
             row.innerHTML = `
+                <td>${record.sn}</td>
                 <td>${record.name}</td>
+                <td>${record.address}</td>
+                <td>${record.contact}</td>
                 <td>${record.email}</td>
-                <td>${record.phone}</td>
+                <td>${record.course}</td>
+                <td>${record.duration}</td>
+                <td>${record.time}</td>
+                <td>${record.occupation}</td>
+                <td>${record.enquiry}</td>
+                <td>${record.date}</td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="editRecord(${index})">Edit</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteRecord(${index})">Delete</button>
@@ -111,12 +162,20 @@
 
     // Save new or updated record
     function saveRecord() {
+        let sn = document.getElementById("sn").value;
         let name = document.getElementById("name").value;
+        let address = document.getElementById("address").value;
+        let contact = document.getElementById("contact").value;
         let email = document.getElementById("email").value;
-        let phone = document.getElementById("phone").value;
+        let course = document.getElementById("course").value;
+        let duration = document.getElementById("duration").value;
+        let time = document.getElementById("time").value;
+        let occupation = document.getElementById("occupation").value;
+        let enquiry = document.getElementById("enquiry").value;
+        let date = new Date().toISOString().split('T')[0];  // Current date (YYYY-MM-DD)
 
         let records = JSON.parse(localStorage.getItem("records"));
-        let record = { name, email, phone };
+        let record = { sn, name, address, contact, email, course, duration, time, occupation, enquiry, date };
 
         // Add new record or update existing one
         if (window.editIndex === undefined) {
@@ -137,9 +196,16 @@
         let records = JSON.parse(localStorage.getItem("records"));
         let record = records[index];
 
+        document.getElementById("sn").value = record.sn;
         document.getElementById("name").value = record.name;
+        document.getElementById("address").value = record.address;
+        document.getElementById("contact").value = record.contact;
         document.getElementById("email").value = record.email;
-        document.getElementById("phone").value = record.phone;
+        document.getElementById("course").value = record.course;
+        document.getElementById("duration").value = record.duration;
+        document.getElementById("time").value = record.time;
+        document.getElementById("occupation").value = record.occupation;
+        document.getElementById("enquiry").value = record.enquiry;
 
         window.editIndex = index;  // Store index for updating
     }
@@ -150,6 +216,37 @@
         records.splice(index, 1);  // Remove the record from array
         localStorage.setItem("records", JSON.stringify(records));
         loadRecords();  // Reload records after deletion
+    }
+
+    // Filter records by date
+    function filterByDate() {
+        let selectedDate = document.getElementById("recordDate").value;
+        let records = JSON.parse(localStorage.getItem("records"));
+        let filteredRecords = records.filter(record => record.date === selectedDate);
+
+        let tableBody = document.getElementById("recordsTable").getElementsByTagName("tbody")[0];
+        tableBody.innerHTML = "";  // Clear existing rows
+
+        filteredRecords.forEach((record, index) => {
+            let row = tableBody.insertRow();
+            row.innerHTML = `
+                <td>${record.sn}</td>
+                <td>${record.name}</td>
+                <td>${record.address}</td>
+                <td>${record.contact}</td>
+                <td>${record.email}</td>
+                <td>${record.course}</td>
+                <td>${record.duration}</td>
+                <td>${record.time}</td>
+                <td>${record.occupation}</td>
+                <td>${record.enquiry}</td>
+                <td>${record.date}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editRecord(${index})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRecord(${index})">Delete</button>
+                </td>
+            `;
+        });
     }
 
     // Authenticate user
